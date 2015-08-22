@@ -3,7 +3,7 @@ __By Marcus Williamson__
 
 ##Info
 
-This repo contains my assignement for the 03/09/15 - 30/09/15 Practical Machine Learning couse by John Hopkins University
+This repo contains support data, findings, figures and the original scripts for the 03/09/15 - 30/09/15 Practical Machine Learning couse by John Hopkins University as undertaken on Cousera
 
 The link to the course can be found [here](https://www.coursera.org/course/predmachlearn)
 
