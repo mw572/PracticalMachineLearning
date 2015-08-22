@@ -1,6 +1,5 @@
-# Assignment Writeup - Practical Machine Learning Course 
-
 # Quantified Self Movement Data Analysis
+### Assignment Writeup - Practical Machine Learning Course
 
 __By Marcus Williamson__
 
