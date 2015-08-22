@@ -1,4 +1,4 @@
-# Practical Machine Learning Assignment
+# Practical Machine Learning Course
 __By Marcus Williamson__
 
 ##Info
