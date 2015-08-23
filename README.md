@@ -10,7 +10,8 @@ The link to the course can be found [here](https://www.coursera.org/course/predm
 
 ##Assignment
 
-Please find my final writeup [here](https://mw572.github.io/index.html)
+**Please find my final writeup [here](https://mw572.github.io/index.html)**
+
 
 **Short Introduction**
 
