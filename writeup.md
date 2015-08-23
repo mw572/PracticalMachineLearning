@@ -60,7 +60,7 @@ traindata$classe = classe # adding our classe column back into the training data
 
 ### Data Partitioning 
 
-We split our training data into training and validation as we seek to implement [Cross Validation]( https://en.wikipedia.org/wiki/Cross-validation_(statistics) ) in this model. We choose a 70:30 split for our training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give a 75:25 split).
+We split our training data into training and validation sets as we seek to implement [Cross Validation]( https://en.wikipedia.org/wiki/Cross-validation_(statistics) ) in this model. We choose a 70:30 split for our sets to ensure we have a suitable amount of data in each, and to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give a 75:25 split).
 ```r
 inTrain <- createDataPartition(y=traindata$classe,p=0.70, list=FALSE) # using a 70:30 split
  
