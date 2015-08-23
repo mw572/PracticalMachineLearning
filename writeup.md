@@ -60,7 +60,7 @@ traindata$classe = classe # adding our classe column back into the training data
 
 ### Data Partitioning 
 
-We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for our training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give a 75:25 split).
+We split our training data into training and validation as we seek to implement [Cross Validation]( https://en.wikipedia.org/wiki/Cross-validation_(statistics) ) in this model. We choose a 70:30 split for our training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give a 75:25 split).
 ```r
 inTrain <- createDataPartition(y=traindata$classe,p=0.70, list=FALSE) # using a 70:30 split
  
@@ -84,6 +84,7 @@ We decide to build and train a Random Forest model with K-Fold Cross Validation.
 * This is also a relatively effective solution to Machine Learning problems when the underlying distribution of the data is unknown. 
 * K-Fold (10) cross validation is used as an old and reliable technique vs some more advanced Nested Monte Carlo based concepts 
 * Larger K means less bias towards overestimating the true expected error, with training folds being less close to the total dataset, but higher variance and more computationally expensive. However, larger K also give you more samples to estimate on.
+
 ```r
 modFit <- train(classe ~ ., data=training,method="rf", trControl=trainControl(method="cv", number=10), verbose=FALSE, ntree=300, allowParallel=TRUE)
 ```
