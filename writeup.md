@@ -27,7 +27,7 @@ set.seed(8484)
 registerDoMC(cores = 8) # for parallel processing
 ```
 
-Next we import our data from the source links into our two files, training and testing data. Although in this case the data has been imported directly into R environment I have saved CSV compies in the Data folder within the repository that can be easily imported into R
+Next we import our data from the source links into our R environment, as training and testing data. Although in this case the data has been imported directly into R environment I have saved CSV copies in the Data folder within the repository that can be easily imported into R
 ```r
 rawtraindata = read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"))
 rawtestdata = read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"))
@@ -41,7 +41,7 @@ dim(rawtraindata);dim(rawtestdata)
 [1] 19622   160
 [1] 20      160
 ```
-It reveals variables that are not useful in prediction and are difficult to work with in a Machine Learning problem, we proceed to clean the datasets
+Under further visual inspection, it reveals variables in the raw data import that are not useful in prediction and are difficult to work with in a Machine Learning problem, we proceed to clean the datasets
 ```r
 classe <- rawtraindata$classe # keeping our classe variables aside that we will need to fit a model for
 
@@ -61,7 +61,7 @@ traindata$classe = classe # adding our classe column back into the training data
 
 ### Data Partitioning 
 
-We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for are training and validation set
+We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for are training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give up 75:25 split)
 ```r
 inTrain <- createDataPartition(y=traindata$classe,p=0.70, list=FALSE) # using a 70:30 split
  
@@ -77,7 +77,12 @@ dim(training);dim(testing) # ensuring we have sufficient volumes for this 70:30 
 
 ### Creating the Model
 
-We decide to build and train a Random Forest model with K-Fold Cross Validation
+We decide to build and train a Random Forest model with K-Fold Cross Validation.
+
+* This allows us to use trees in the model with a reduction in bias and variance by utilitsing many trees in the prediction. 
+* This is also a relatively effective solution to Machine Learning problems when the underlying distribution of the data is unknown. 
+* K-Fold (10) cross validation is used as an old and reliable technique vs some more advanced Nested Monte Carlo based concepts 
+* Larger K means less bias towards overestimating the true expected error, with training folds being less close to the total dataset, but higher variance and more computationally expensive, larger K also give you more samples to estimate on
 ```r
 modFit <- train(classe ~ ., data=training,method="rf", trControl=trainControl(method="cv", number=10), verbose=FALSE, ntree=300, allowParallel=TRUE)
 ```
@@ -147,6 +152,7 @@ Detection Rate         0.2843   0.1910   0.1732   0.1624   0.1823
 Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 Balanced Accuracy      0.9972   0.9958   0.9920   0.9940   0.9991
 ````
+It appears the final model was relatively successful in predicting the Classes of the data, with few incorrect
 
 We next look at the model's accuracy and out of sample error
 ```r
@@ -167,10 +173,11 @@ ose
 ```
 [1] 0.006796941
 ````
+The **estimated accuracy** of the model is **99.32%** and the **estimated out of sample error** is **0.68%**.
 
 ### The Prediction Results
 
-We now use the test dataset in the model we have built and trained to predict on unseen data
+We now run the test dataset through the model we have built and trained, to predict the unseen data's classes:
 ```r
 results <- predict(modFit, testdata[, -length(names(testdata))])
 results
@@ -182,7 +189,7 @@ Levels: A B C D E
 
 ### Figures
 
-Visualising aspects of the model
+Visualising the error rate in the final model for the different Classes and [OOB](http://stackoverflow.com/questions/18541923/what-is-out-of-bag-error-in-random-forests) (Out of bag error).
 ```r
 plot(modFit$finalModel,main="Log of resampling results across tuning parameters", log="y")
 finalmodel.legend <- if (is.null(modFit$finalModel$test$err.rate)) {colnames(modFit$finalModel$err.rate)} 
@@ -191,13 +198,13 @@ legend("top", cex =0.5, legend=finalmodel.legend, lty=c(1,2,3,4,5,6), col=c(1,2,
 ```
 ![Plot of resampling results across tuning parameters](Figures/chart_1.png)
 
-Plotting the importance of the different variables
+Plotting the importance of the different variables, showing how important the Roll Belt variable is compared to the Roll Arm variable.
 ```r
 varImpPlot(modFit$finalModel, main="Importance Plot")
 ```
 ![Plot of vairable importance](Figures/chart_2.png)
 
-Plotting an example tree as Random Forest is black box algorithm, a single tree **does not represent the model** but is useful for sense checking data and how the tree is splitting
+Plotting an example tree. As Random Forest is black box algorithm so to speak, a single tree **does not represent the model** but is useful for sense checking data and how an example trees are likely to be splitting.
 ```r
 treeout <- rpart(classe ~ ., data=training) # creating a single tree from the training data
 prp(treeout,uniform=T, xsep="/") 
