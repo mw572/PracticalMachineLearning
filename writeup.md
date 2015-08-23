@@ -59,9 +59,11 @@ testdata = rawtestdata[ ,sapply(rawtestdata,is.numeric)] # repeat for test datas
 traindata$classe = classe # adding our classe column back into the training dataset
 ```
 
+---
+
 ### Data Partitioning 
 
-We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for are training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give up 75:25 split)
+We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for are training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give up 75:25 split).
 ```r
 inTrain <- createDataPartition(y=traindata$classe,p=0.70, list=FALSE) # using a 70:30 split
  
@@ -75,6 +77,8 @@ dim(training);dim(testing) # ensuring we have sufficient volumes for this 70:30 
 [1] 5885   53
 ````
 
+---
+
 ### Creating the Model
 
 We decide to build and train a Random Forest model with K-Fold Cross Validation.
@@ -87,7 +91,7 @@ We decide to build and train a Random Forest model with K-Fold Cross Validation.
 modFit <- train(classe ~ ., data=training,method="rf", trControl=trainControl(method="cv", number=10), verbose=FALSE, ntree=300, allowParallel=TRUE)
 ```
 
-We then examine the model that has been created
+We then examine the model that has been created.
 ```r
 modFit 
 ```
@@ -111,6 +115,8 @@ Resampling results across tuning parameters:
 Accuracy was used to select the optimal model using  the largest value.
 The final value used for the model was mtry = 27. 
 ````
+
+---
 
 ### Model Accuracy and Out of Sample Error
 
@@ -152,9 +158,10 @@ Detection Rate         0.2843   0.1910   0.1732   0.1624   0.1823
 Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 Balanced Accuracy      0.9972   0.9958   0.9920   0.9940   0.9991
 ````
-It appears the final model was relatively successful in predicting the Classes of the data, with few incorrect
+It appears the final model was relatively successful in predicting the Classes of the data, with few classes incorrect.
 
-We next look at the model's accuracy and out of sample error
+
+We next look at the model's accuracy and out of sample error.
 ```r
 accuracy <- postResample(prediction, testing$classe) # calculating accuracy
 ose <- 1 - as.numeric(confusionMatrix(testing$classe, prediction)$overall[1]) # calculating out of sample error
@@ -175,6 +182,8 @@ ose
 ````
 The **estimated accuracy** of the model is **99.32%** and the **estimated out of sample error** is **0.68%**.
 
+---
+
 ### The Prediction Results
 
 We now run the test dataset through the model we have built and trained, to predict the unseen data's classes:
@@ -186,6 +195,8 @@ results
 [1] B A B A A E D B A A B C B A E E A B B B
 Levels: A B C D E
 ```
+
+---
 
 ### Figures
 
