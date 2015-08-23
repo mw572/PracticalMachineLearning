@@ -5,29 +5,26 @@ __By Marcus Williamson__
 
 ## Introduction
 
-Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These types of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset). 
 
 ---
 
 ### Importing and Cleaning Data
 
-We begin by importing our libraries that we may need to use during the analysis and model creation
+We begin by importing our libraries that we may need to use during the analysis and model creation:
 ```r
 library(caret)
-library(randomForest)
-library(ElemStatLearn)
 library(rpart)
 library(doMC)
-library(tree)
 library(rpart.plot)
 ```
-We also set our seed for **reproduciblity of results** and number of cores available for processing with 
+We also set our seed for **reproduciblity of results** and number of cores available for processing with: 
 ```r
 set.seed(8484) 
 registerDoMC(cores = 8) # for parallel processing
 ```
 
-Next we import our data from the source links into our R environment, as training and testing data. Although in this case the data has been imported directly into R environment I have saved CSV copies in the Data folder within the repository that can be easily imported into R
+Next we import our data from the source links into our R environment, as training and testing data. Although in this case the data has been imported directly into R environment, I have saved CSV copies in the Data folder within the repository that can be easily imported into R.
 ```r
 rawtraindata = read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"))
 rawtestdata = read.csv(url("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"))
@@ -41,7 +38,7 @@ dim(rawtraindata);dim(rawtestdata)
 [1] 19622   160
 [1] 20      160
 ```
-Under further visual inspection, it reveals variables in the raw data import that are not useful in prediction and are difficult to work with in a Machine Learning problem, we proceed to clean the datasets
+Under further visual inspection, it reveals variables in the raw data import that are not useful in prediction and are difficult to work with in a Machine Learning problem, so we proceed to clean the datasets:
 ```r
 classe <- rawtraindata$classe # keeping our classe variables aside that we will need to fit a model for
 
@@ -63,7 +60,7 @@ traindata$classe = classe # adding our classe column back into the training data
 
 ### Data Partitioning 
 
-We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for are training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give up 75:25 split).
+We split our training data into training and validation as we seek to implement [Cross Validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) in this model. We choose a 70:30 split for our training and validation set as we have a suitable amount of data, in order to reduce the variance in the parameter estimates. This is also roughly in line with the split of 60% Training 20% Validation (scaling up to give a 75:25 split).
 ```r
 inTrain <- createDataPartition(y=traindata$classe,p=0.70, list=FALSE) # using a 70:30 split
  
@@ -86,12 +83,12 @@ We decide to build and train a Random Forest model with K-Fold Cross Validation.
 * This allows us to use trees in the model with a reduction in bias and variance by utilitsing many trees in the prediction. 
 * This is also a relatively effective solution to Machine Learning problems when the underlying distribution of the data is unknown. 
 * K-Fold (10) cross validation is used as an old and reliable technique vs some more advanced Nested Monte Carlo based concepts 
-* Larger K means less bias towards overestimating the true expected error, with training folds being less close to the total dataset, but higher variance and more computationally expensive, larger K also give you more samples to estimate on
+* Larger K means less bias towards overestimating the true expected error, with training folds being less close to the total dataset, but higher variance and more computationally expensive. However, larger K also give you more samples to estimate on.
 ```r
 modFit <- train(classe ~ ., data=training,method="rf", trControl=trainControl(method="cv", number=10), verbose=FALSE, ntree=300, allowParallel=TRUE)
 ```
 
-We then examine the model that has been created.
+We then examine the model that has been created:
 ```r
 modFit 
 ```
@@ -120,7 +117,7 @@ The final value used for the model was mtry = 27.
 
 ### Model Accuracy and Out of Sample Error
 
-We first look at the error matrix and summary statistics of the model
+We first look at the error matrix and summary statistics of the model:
 ```r
 prediction <- predict(modFit, testing)
 confusionMatrix(testing$classe, prediction) # printing error matrix
@@ -158,10 +155,10 @@ Detection Rate         0.2843   0.1910   0.1732   0.1624   0.1823
 Detection Prevalence   0.2845   0.1935   0.1743   0.1638   0.1839
 Balanced Accuracy      0.9972   0.9958   0.9920   0.9940   0.9991
 ````
-It appears the final model was relatively successful in predicting the Classes of the data, with few classes incorrect.
+It appears that the final model was relatively successful in predicting the Classes of the data, with few classes incorrect.
 
 
-We next look at the model's accuracy and out of sample error.
+We next look at the model's accuracy and out of sample error:
 ```r
 accuracy <- postResample(prediction, testing$classe) # calculating accuracy
 ose <- 1 - as.numeric(confusionMatrix(testing$classe, prediction)$overall[1]) # calculating out of sample error
@@ -195,6 +192,7 @@ results
 [1] B A B A A E D B A A B C B A E E A B B B
 Levels: A B C D E
 ```
+Here we see the predicted classes of the test data set.
 
 ---
 
@@ -215,7 +213,7 @@ varImpPlot(modFit$finalModel, main="Importance Plot")
 ```
 ![Plot of vairable importance](Figures/chart_2.png)
 
-Plotting an example tree. As Random Forest is black box algorithm so to speak, a single tree **does not represent the model** but is useful for sense checking data and how an example trees are likely to be splitting.
+Plotting an example tree. As Random Forest is a black box algorithm so to speak, a single tree **does not represent the model** but is useful for sense checking data and seeing how an example tree would be likely to split.
 ```r
 treeout <- rpart(classe ~ ., data=training) # creating a single tree from the training data
 prp(treeout,uniform=T, xsep="/") 
